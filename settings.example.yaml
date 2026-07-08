@@ -2,8 +2,8 @@
 $schema: "./settings.schema.yaml"
 environment: development
 
-db_url: postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/inpulse
-redis_url: redis://127.0.0.1:6379/0
+db_url: "postgresql+asyncpg://postgres:postgres@db:5432/inpulse"
+redis_url: "redis://redis:6379/0"
 timezone: Europe/Moscow
 ical_refresh_interval_minutes: 60
 
