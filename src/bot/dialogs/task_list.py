@@ -49,9 +49,14 @@ async def task_detail_getter(dialog_manager: DialogManager, **kwargs):
     return {}
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 async def mark_done(call: CallbackQuery, button: Button, dialog_manager: DialogManager):
     task_id = dialog_manager.dialog_data.get("task_id")
     user_id = call.from_user.id
+    username = call.from_user.username
     async with db.session_factory() as session:
         repo = UserRepository(session)
         user = await repo.get_by_telegram_id(user_id)
@@ -59,6 +64,8 @@ async def mark_done(call: CallbackQuery, button: Button, dialog_manager: DialogM
             task_service = TaskService(session)
             await task_service.mark_done(task_id, user["id"])
             await session.commit()
+            logger.info(f"User {user_id} (@{username}) marked task {task_id} as done")
+            logger.info(f"[ANALYTICS] User {user_id} (@{username}) COMPLETED task {task_id}")
     await call.answer("Task marked as done!")
     await dialog_manager.switch_to(TaskListSG.list)
 
@@ -66,6 +73,7 @@ async def mark_done(call: CallbackQuery, button: Button, dialog_manager: DialogM
 async def delete_task(call: CallbackQuery, button: Button, dialog_manager: DialogManager):
     task_id = dialog_manager.dialog_data.get("task_id")
     user_id = call.from_user.id
+    username = call.from_user.username
     async with db.session_factory() as session:
         repo = UserRepository(session)
         user = await repo.get_by_telegram_id(user_id)
@@ -73,6 +81,7 @@ async def delete_task(call: CallbackQuery, button: Button, dialog_manager: Dialo
             task_service = TaskService(session)
             await task_service.delete_task(task_id, user["id"])
             await session.commit()
+            logger.info(f"User {user_id} (@{username}) deleted task {task_id}")
     await call.answer("Task deleted.")
     await dialog_manager.switch_to(TaskListSG.list)
 
@@ -81,6 +90,7 @@ async def on_add_task_click(call: CallbackQuery, button: Button, dialog_manager:
     is_premium = dialog_manager.middleware_data.get("is_premium", False)
     if not is_premium:
         user_id = call.from_user.id
+        username = call.from_user.username
         async with db.session_factory() as session:
             user_repo = UserRepository(session)
             user = await user_repo.get_by_telegram_id(user_id)
@@ -88,6 +98,7 @@ async def on_add_task_click(call: CallbackQuery, button: Button, dialog_manager:
                 task_service = TaskService(session)
                 pending = await task_service.list_pending_tasks(user["id"])
                 if len(pending) >= 15:
+                    logger.warning(f"User {user_id} (@{username}) hit Free tier limits (active tasks)")
                     await call.answer("📋 Free accounts are limited to 15 active tasks! Upgrade to Premium.", show_alert=True)
                     return
     await dialog_manager.start(TaskCreateSG.input_title)

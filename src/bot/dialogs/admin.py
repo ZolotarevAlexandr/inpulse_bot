@@ -64,6 +64,9 @@ async def user_detail_getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
+import logging
+logger = logging.getLogger(__name__)
+
 async def on_grant_duration(message: Message, widget, dialog_manager: DialogManager, text: str):
     try:
         days = int(text)
@@ -91,6 +94,9 @@ async def on_grant_duration(message: Message, widget, dialog_manager: DialogMana
         await repo.set_premium(user_id, until)
         await session.commit()
         
+        logger.info(f"Admin {message.from_user.id} granted/extended Premium for User {user_id} (@{user['username']}) until {until}")
+        logger.info(f"[ANALYTICS] Admin granted Premium for User {user_id} (@{user['username']})")
+        
     await message.answer(f"✅ User Premium {action_text} until {until.strftime('%d.%m.%Y')}.")
     
     from aiogram import Bot
@@ -110,8 +116,12 @@ async def revoke_premium(call: Message, button: Button, dialog_manager: DialogMa
     user_id = dialog_manager.dialog_data["target_user_id"]
     async with db.session_factory() as session:
         repo = UserRepository(session)
+        user = await repo.get_by_id(user_id)
         await repo.remove_premium(user_id)
         await session.commit()
+        
+        logger.info(f"Admin {call.from_user.id} revoked Premium for User {user_id} (@{user['username']})")
+        logger.info(f"[ANALYTICS] Admin revoked Premium for User {user_id} (@{user['username']})")
         
     await call.answer("Premium revoked.", show_alert=True)
     await dialog_manager.switch_to(AdminSG.user_detail)

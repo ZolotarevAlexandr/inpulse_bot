@@ -9,8 +9,13 @@ from src.db.repositories.users import UserRepository
 from src.modules.recommendations.service import RecommendationService
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 async def recommend_getter(dialog_manager: DialogManager, **kwargs):
     user_id = dialog_manager.event.from_user.id
+    username = dialog_manager.event.from_user.username
     is_premium = dialog_manager.middleware_data.get("is_premium", False)
     
     async with db.session_factory() as session:
@@ -24,6 +29,7 @@ async def recommend_getter(dialog_manager: DialogManager, **kwargs):
             log_repo = RecommendationLogRepository(session)
             count = await log_repo.get_recommendations_today_count(user["id"])
             if count >= 3:
+                logger.warning(f"User {user_id} (@{username}) hit Free tier limits (recommendations)")
                 return {
                     "has_rec": False,
                     "is_premium": False,
@@ -36,6 +42,8 @@ async def recommend_getter(dialog_manager: DialogManager, **kwargs):
         
         if rec:
             dialog_manager.dialog_data["task_id"] = rec.task.id
+            logger.info(f"Generated recommendation for user {user_id} (@{username}): Task {rec.task.id}")
+            logger.info(f"[ANALYTICS] User {user_id} (@{username}) received recommendation for task {rec.task.id}")
             return {
                 "has_rec": True,
                 "is_premium": is_premium,
@@ -43,6 +51,7 @@ async def recommend_getter(dialog_manager: DialogManager, **kwargs):
                 "task_id": rec.task.id
             }
         else:
+            logger.info(f"No tasks fit window for user {user_id} (@{username})")
             return {
                 "has_rec": False,
                 "is_premium": is_premium,
@@ -53,8 +62,8 @@ async def recommend_getter(dialog_manager: DialogManager, **kwargs):
 async def accept_task(call: CallbackQuery, button: Button, dialog_manager: DialogManager):
     task_id = dialog_manager.dialog_data.get("task_id")
     user_id = call.from_user.id
-    # We could log acceptance here. We need log_id for that, which isn't currently returned by get_recommendation easily unless we add it.
-    # For MVP, just show a message.
+    username = call.from_user.username
+    logger.info(f"[ANALYTICS] User {user_id} (@{username}) ACCEPTED recommendation for task {task_id}")
     await call.answer("Great! Go get it done!", show_alert=True)
     await dialog_manager.done()
 

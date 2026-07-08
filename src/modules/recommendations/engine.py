@@ -82,6 +82,14 @@ async def generate_explanation(task: Task, window: FreeWindow) -> str:
                 model=settings.llm.model,
                 messages=[{"role": "user", "content": prompt}]
             )
+            
+            if response.usage:
+                logging.info(
+                    f"LLM Token Usage - Prompt: {response.usage.prompt_tokens}, "
+                    f"Completion: {response.usage.completion_tokens}, "
+                    f"Total: {response.usage.total_tokens}"
+                )
+                
             llm_text = response.choices[0].message.content.strip()
             if not llm_text:
                 logging.warning("LLM returned empty response. Falling back to base text.")

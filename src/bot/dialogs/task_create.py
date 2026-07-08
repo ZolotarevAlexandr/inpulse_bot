@@ -64,7 +64,7 @@ async def on_duration_input(message: Message, widget, dialog_manager: DialogMana
             deadline_str = dialog_manager.dialog_data.get("deadline")
             deadline = datetime.datetime.fromisoformat(deadline_str) if deadline_str else None
             
-            await task_service.create_task(
+            task = await task_service.create_task(
                 user_id=user["id"],
                 title=dialog_manager.dialog_data["title"],
                 priority=dialog_manager.dialog_data["priority"],
@@ -72,6 +72,11 @@ async def on_duration_input(message: Message, widget, dialog_manager: DialogMana
                 deadline=deadline
             )
             await session.commit()
+            
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"User {user_id} (@{message.from_user.username}) created task {task.id}")
+            logger.info(f"[ANALYTICS] User {user_id} (@{message.from_user.username}) created task {task.id}")
             
     await message.answer("✅ Task created successfully!")
     await dialog_manager.done()

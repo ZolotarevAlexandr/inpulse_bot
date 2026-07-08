@@ -30,7 +30,9 @@ async def start_cmd(message: Message, dialog_manager: DialogManager):
                 first_name=user.first_name
             )
             await session.commit()
+            logger.info(f"[ANALYTICS] User {user.id} (@{user.username}) signed up")
             
+    logger.info(f"[ANALYTICS] User {user.id} (@{user.username}) started session")
     await dialog_manager.start(RootSG.main, mode=StartMode.RESET_STACK)
 
 
