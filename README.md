@@ -2,6 +2,8 @@
 
 > Smart task recommendations for your free windows between classes.
 
+_That's a small project created within one of elective courses_
+
 ## Features
 
 📋 Create and manage tasks with priorities and deadlines<br/>
