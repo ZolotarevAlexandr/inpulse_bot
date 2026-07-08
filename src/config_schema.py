@@ -29,6 +29,8 @@ class LLM(SettingsEntityModel):
 class Subscription(SettingsEntityModel):
     """Premium subscription settings"""
     
+    price_rub_month: int = 100
+    "Price of premium subscription in RUB per month"
     payment_link: str = "https://example.com/pay"
     "Link or details for payment transfer"
     admin_username: str = "@admin"

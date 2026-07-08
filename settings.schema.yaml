@@ -52,6 +52,11 @@ $defs:
     additionalProperties: false
     description: Premium subscription settings
     properties:
+      price_rub_month:
+        default: 100
+        description: Price of premium subscription in RUB per month
+        title: Price Rub Month
+        type: integer
       payment_link:
         default: https://example.com/pay
         description: Link or details for payment transfer

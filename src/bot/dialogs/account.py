@@ -49,6 +49,7 @@ async def buy_getter(dialog_manager: DialogManager, **kwargs):
     return {
         "payment_link": settings.subscription.payment_link,
         "admin_username": settings.subscription.admin_username,
+        "price_rub_month": settings.subscription.price_rub_month,
     }
 
 dialog = Dialog(
@@ -77,8 +78,8 @@ dialog = Dialog(
         getter=account_getter,
     ),
     Window(
-        Const(
-            "💳 <b>To purchase a Premium subscription:</b>\n\n"
+        Format(
+            "💳 <b>To purchase a Premium subscription ({price_rub_month} RUB/month):</b>\n\n"
         ),
         Format("1. Transfer the payment to {payment_link}\n"),
         Format("2. Send the receipt screenshot to {admin_username} in a private message\n"),
