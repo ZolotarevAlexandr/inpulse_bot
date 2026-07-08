@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=settings.schema.yaml
+$schema: "./settings.schema.yaml"
+environment: development
+
+db_url: postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/inpulse
+redis_url: redis://127.0.0.1:6379/0
+timezone: Europe/Moscow
+ical_refresh_interval_minutes: 60
+
+telegram_bot:
+  token: ...
+  admins: []
+  name: InPulse Bot
+  description: Smart task recommendations for free windows.
+  short_description: InPulse turns your free windows between classes into completed tasks.
+  commands:
+    - command: start
+      description: Start the bot
+    - command: menu
+      description: Open main menu
+    - command: help
+      description: Get help
+
+# LLM configuration for personalized recommendation messages
+# Remove or comment out to use static messages
+llm:
+  # Base URL for the OpenAI compatible API
+  # If using the included Ollama in docker, use http://ollama:11434/v1
+  base_url: "http://ollama:11434/v1"
+  # Any string works for Ollama
+  api_key: "ollama"
+  # Use the model that is pulled by docker-compose (e.g. qwen2.5:0.5b)
+  model: "qwen2.5:0.5b"

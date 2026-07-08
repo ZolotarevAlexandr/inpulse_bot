@@ -1,0 +1,168 @@
+$schema: http://json-schema.org/draft-07/schema#
+$defs:
+  BotCommand:
+    additionalProperties: true
+    description: 'This object represents a bot command.
+
+
+      Source: https://core.telegram.org/bots/api#botcommand'
+    properties:
+      command:
+        title: Command
+        type: string
+      description:
+        title: Description
+        type: string
+    required:
+    - command
+    - description
+    title: BotCommand
+    type: object
+  Environment:
+    enum:
+    - development
+    - production
+    - testing
+    title: Environment
+    type: string
+  LLM:
+    additionalProperties: false
+    description: LLM settings for text generation
+    properties:
+      api_key:
+        description: API key for the LLM provider
+        format: password
+        title: Api Key
+        type: string
+        writeOnly: true
+      base_url:
+        default: https://api.openai.com/v1
+        description: Base URL for the LLM API
+        title: Base Url
+        type: string
+      model:
+        default: gpt-4o-mini
+        description: Model to use for generation
+        title: Model
+        type: string
+    required:
+    - api_key
+    title: LLM
+    type: object
+  TelegramBot:
+    additionalProperties: false
+    description: Telegram Bot settings
+    properties:
+      token:
+        description: Telegram bot token from @BotFather
+        format: password
+        title: Token
+        type: string
+        writeOnly: true
+      whitelist:
+        default: []
+        description: Allowed Telegram user IDs (empty list means nobody is allowed
+          unless they are in admins)
+        items:
+          type: integer
+        title: Whitelist
+        type: array
+      admins:
+        default: []
+        description: Admin' telegram IDs
+        items:
+          type: integer
+        title: Admins
+        type: array
+      name:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Desired bot name
+        title: Name
+      description:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Bot description
+        title: Description
+      short_description:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Bot short description
+        title: Short Description
+      commands:
+        anyOf:
+        - items:
+            $ref: '#/$defs/BotCommand'
+          type: array
+        - type: 'null'
+        default: null
+        description: Bot commands (displayed in telegram menu)
+        title: Commands
+    required:
+    - token
+    title: TelegramBot
+    type: object
+additionalProperties: false
+description: Settings for the application. Get settings from `settings.yaml` file.
+properties:
+  $schema:
+    anyOf:
+    - type: string
+    - type: 'null'
+    default: null
+    title: $Schema
+  environment:
+    $ref: '#/$defs/Environment'
+    default: development
+    description: App environment flag
+  db_url:
+    description: Connection String for SQLAlchemy
+    examples:
+    - postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/inpulse
+    - postgresql+asyncpg://postgres:postgres@db:5432/inpulse
+    format: password
+    title: Db Url
+    type: string
+    writeOnly: true
+  redis_url:
+    anyOf:
+    - format: password
+      type: string
+      writeOnly: true
+    - type: 'null'
+    default: null
+    description: Redis URL (for aiogram-dialog and FSM)
+    examples:
+    - redis://127.0.0.1:6379/0
+    - redis://redis:6379/0
+    title: Redis Url
+  timezone:
+    default: Europe/Moscow
+    description: Timezone for interpreting dates
+    title: Timezone
+    type: string
+  ical_refresh_interval_minutes:
+    default: 60
+    description: How often to refresh the iCal feeds (in minutes)
+    title: Ical Refresh Interval Minutes
+    type: integer
+  telegram_bot:
+    $ref: '#/$defs/TelegramBot'
+    description: Telegram Bot configuration
+  llm:
+    anyOf:
+    - $ref: '#/$defs/LLM'
+    - type: 'null'
+    default: null
+    description: LLM integration settings for recommendations
+required:
+- db_url
+- telegram_bot
+title: Settings
+type: object

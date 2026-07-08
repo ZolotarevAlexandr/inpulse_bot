@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# Except code and config
+!/src/
+!/pyproject.toml
+!/uv.lock
+!/alembic/
+!/alembic.ini
+
+# And ignore cache files in the code
+__pycache__

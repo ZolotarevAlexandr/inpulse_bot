@@ -1,0 +1,17 @@
+### PyCharm ###
+.idea
+
+### Cache ###
+__pycache__
+.ruff_cache
+
+### Environment ###
+.env
+.venv
+settings.yaml
+.python-version
+
+### Other ###
+.DS_Store
+*.sqlite
+.logs/

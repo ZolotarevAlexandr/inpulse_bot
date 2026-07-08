@@ -1,0 +1,74 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - "./settings.yaml:/app/settings.yaml:ro"
+    environment:
+      TZ: Europe/Moscow
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  db:
+    image: "postgres:17.1"
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d inpulse" ]
+      timeout: 5s
+      start_period: 30s
+      interval: 1m
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inpulse
+
+  redis:
+    image: "redis:7.2.4-alpine"
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis:/data"
+
+  ollama:
+    image: ollama/ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - "ollama:/root/.ollama"
+
+  ollama-pull:
+    image: curlimages/curl:latest
+    depends_on:
+      - ollama
+    restart: "no"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - MODEL_NAME=qwen3.5:2b
+    command: >
+      sh -c "
+        echo 'Waiting for Ollama to start...'
+        while ! curl -s $$OLLAMA_URL >/dev/null; do sleep 2; done
+        echo \"Ollama is running. Pulling model $$MODEL_NAME...\"
+        curl -X POST $$OLLAMA_URL/api/pull -d \"{\\\"name\\\":\\\"$$MODEL_NAME\\\"}\"
+        echo '\nModel pulled successfully!'
+      "
+
+volumes:
+  postgres:
+  redis:
+  ollama:
