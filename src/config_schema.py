@@ -26,6 +26,15 @@ class LLM(SettingsEntityModel):
     "Model to use for generation"
 
 
+class Subscription(SettingsEntityModel):
+    """Premium subscription settings"""
+    
+    payment_link: str = "https://example.com/pay"
+    "Link or details for payment transfer"
+    admin_username: str = "@admin"
+    "Username of the admin to contact with the receipt"
+
+
 class TelegramBot(SettingsEntityModel):
     """Telegram Bot settings"""
     
@@ -69,6 +78,9 @@ class Settings(SettingsEntityModel):
 
     telegram_bot: TelegramBot
     "Telegram Bot configuration"
+    
+    subscription: Subscription = Field(default_factory=Subscription)
+    "Premium subscription configuration"
 
     llm: LLM | None = None
     "LLM integration settings for recommendations"

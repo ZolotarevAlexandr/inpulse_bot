@@ -77,6 +77,22 @@ async def delete_task(call: CallbackQuery, button: Button, dialog_manager: Dialo
     await dialog_manager.switch_to(TaskListSG.list)
 
 
+async def on_add_task_click(call: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    is_premium = dialog_manager.middleware_data.get("is_premium", False)
+    if not is_premium:
+        user_id = call.from_user.id
+        async with db.session_factory() as session:
+            user_repo = UserRepository(session)
+            user = await user_repo.get_by_telegram_id(user_id)
+            if user:
+                task_service = TaskService(session)
+                pending = await task_service.list_pending_tasks(user["id"])
+                if len(pending) >= 15:
+                    await call.answer("📋 Free accounts are limited to 15 active tasks! Upgrade to Premium.", show_alert=True)
+                    return
+    await dialog_manager.start(TaskCreateSG.input_title)
+
+
 dialog = Dialog(
     Window(
         Const("📝 <b>My Tasks</b>\n"),
@@ -94,7 +110,7 @@ dialog = Dialog(
             height=5,
             when="has_tasks",
         ),
-        Start(Const("➕ Add Task"), id="add_task", state=TaskCreateSG.input_title),
+        Button(Const("➕ Add Task"), id="add_task", on_click=on_add_task_click),
         Cancel(Const("⬅️ Back")),
         state=TaskListSG.list,
         getter=list_tasks_getter,

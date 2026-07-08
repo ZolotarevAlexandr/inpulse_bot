@@ -2,7 +2,7 @@ from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Column, Start
 from aiogram_dialog.widgets.text import Const, Format
 
-from src.bot.states import CalendarSetupSG, RecommendSG, RootSG, TaskListSG
+from src.bot.states import CalendarSetupSG, RecommendSG, RootSG, TaskListSG, AccountSG
 
 
 async def on_startup(dialog_manager: DialogManager, **kwargs):
@@ -17,6 +17,7 @@ dialog = Dialog(
             Start(Const("🎯 What to do now?"), id="btn_recommend", state=RecommendSG.show),
             Start(Const("📝 My Tasks"), id="btn_tasks", state=TaskListSG.list),
             Start(Const("📅 Calendar Setup"), id="btn_calendar", state=CalendarSetupSG.info),
+            Start(Const("👤 Account"), id="btn_account", state=AccountSG.info),
         ),
         state=RootSG.main,
         getter=on_startup,

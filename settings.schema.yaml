@@ -22,7 +22,6 @@ $defs:
     enum:
     - development
     - production
-    - testing
     title: Environment
     type: string
   LLM:
@@ -49,6 +48,22 @@ $defs:
     - api_key
     title: LLM
     type: object
+  Subscription:
+    additionalProperties: false
+    description: Premium subscription settings
+    properties:
+      payment_link:
+        default: https://example.com/pay
+        description: Link or details for payment transfer
+        title: Payment Link
+        type: string
+      admin_username:
+        default: '@admin'
+        description: Username of the admin to contact with the receipt
+        title: Admin Username
+        type: string
+    title: Subscription
+    type: object
   TelegramBot:
     additionalProperties: false
     description: Telegram Bot settings
@@ -59,14 +74,6 @@ $defs:
         title: Token
         type: string
         writeOnly: true
-      whitelist:
-        default: []
-        description: Allowed Telegram user IDs (empty list means nobody is allowed
-          unless they are in admins)
-        items:
-          type: integer
-        title: Whitelist
-        type: array
       admins:
         default: []
         description: Admin' telegram IDs
@@ -155,6 +162,9 @@ properties:
   telegram_bot:
     $ref: '#/$defs/TelegramBot'
     description: Telegram Bot configuration
+  subscription:
+    $ref: '#/$defs/Subscription'
+    description: Premium subscription configuration
   llm:
     anyOf:
     - $ref: '#/$defs/LLM'

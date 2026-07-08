@@ -4,6 +4,7 @@ from .root import dialog as root_dialog
 from .task_create import dialog as task_create_dialog
 from .task_list import dialog as task_list_dialog
 from .admin import dialog as admin_dialog
+from .account import dialog as account_dialog
 
 __all__ = [
     "root_dialog",
@@ -12,4 +13,5 @@ __all__ = [
     "task_list_dialog",
     "recommend_dialog",
     "admin_dialog",
+    "account_dialog",
 ]

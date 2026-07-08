@@ -16,6 +16,12 @@ class UserRepository:
         row = result.mappings().first()
         return dict(row) if row else None
 
+    async def get_by_username(self, username: str) -> dict | None:
+        stmt = select(users).where(users.c.username == username)
+        result = await self.session.execute(stmt)
+        row = result.mappings().first()
+        return dict(row) if row else None
+
     async def get_by_id(self, user_id: int) -> dict | None:
         stmt = select(users).where(users.c.id == user_id)
         result = await self.session.execute(stmt)
@@ -52,3 +58,28 @@ class UserRepository:
             ical_last_synced=datetime.datetime.now()
         )
         await self.session.execute(stmt)
+
+    async def set_premium(self, user_id: int, until: datetime.datetime) -> None:
+        stmt = update(users).where(users.c.id == user_id).values(
+            role="premium", premium_until=until
+        )
+        await self.session.execute(stmt)
+
+    async def remove_premium(self, user_id: int) -> None:
+        stmt = update(users).where(users.c.id == user_id).values(
+            role="free", premium_until=None
+        )
+        await self.session.execute(stmt)
+
+    async def is_premium(self, user_id: int) -> bool:
+        user = await self.get_by_id(user_id)
+        if not user or user["role"] != "premium":
+            return False
+        if user["premium_until"] and user["premium_until"] < datetime.datetime.now():
+            return False
+        return True
+
+    async def get_all_users(self) -> list[dict]:
+        stmt = select(users).order_by(users.c.created_at.desc())
+        result = await self.session.execute(stmt)
+        return [dict(row) for row in result.mappings().all()]

@@ -7,7 +7,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
 
-from src.bot.middlewares.whitelist import WhitelistMiddleware
 from src.config import settings
 
 logger = logging.getLogger(__name__)
@@ -27,11 +26,13 @@ else:
     storage = MemoryStorage()
     logger.info("Using Memory storage")
 
+from src.bot.middlewares import AuthMiddleware
+
 dp = Dispatcher(storage=storage)
 
-whitelist_middleware = WhitelistMiddleware()
-dp.message.middleware(whitelist_middleware)
-dp.callback_query.middleware(whitelist_middleware)
+auth_middleware = AuthMiddleware()
+dp.message.middleware(auth_middleware)
+dp.callback_query.middleware(auth_middleware)
 
 from src.bot.dialogs import (
     admin_dialog,
@@ -40,6 +41,7 @@ from src.bot.dialogs import (
     root_dialog,
     task_create_dialog,
     task_list_dialog,
+    account_dialog,
 )
 from src.bot.routers.commands import router as commands_router
 
@@ -51,6 +53,7 @@ dp.include_router(task_create_dialog)
 dp.include_router(task_list_dialog)
 dp.include_router(recommend_dialog)
 dp.include_router(admin_dialog)
+dp.include_router(account_dialog)
 
 setup_dialogs(dp)
 

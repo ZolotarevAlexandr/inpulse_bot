@@ -1,3 +1,3 @@
-from .whitelist import WhitelistMiddleware
+from .auth import AuthMiddleware
 
-__all__ = ["WhitelistMiddleware"]
+__all__ = ["AuthMiddleware"]

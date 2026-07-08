@@ -27,16 +27,9 @@ users = Table(
     Column("timezone", String(64), nullable=False, default="Europe/Moscow"),
     Column("work_start_hour", Integer, nullable=False, default=8),
     Column("work_end_hour", Integer, nullable=False, default=23),
+    Column("role", String(16), nullable=False, default="free"),
+    Column("premium_until", DateTime, nullable=True),
     Column("created_at", DateTime, nullable=False, default=datetime.datetime.now),
-)
-
-
-whitelisted_users = Table(
-    "whitelisted_users",
-    metadata,
-    Column("telegram_id", BigInteger, primary_key=True),
-    Column("added_at", DateTime, nullable=False, default=datetime.datetime.now),
-    Column("added_by", BigInteger, nullable=True),
 )
 
 

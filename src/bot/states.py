@@ -32,5 +32,11 @@ class RecommendSG(StatesGroup):
 
 class AdminSG(StatesGroup):
     menu = State()
-    input_add = State()
-    input_remove = State()
+    user_detail = State()
+    input_find = State()
+    select_duration = State()
+
+
+class AccountSG(StatesGroup):
+    info = State()
+    buy = State()

@@ -21,6 +21,10 @@ telegram_bot:
     - command: help
       description: Get help
 
+subscription:
+  payment_link: "https://example.com/pay"
+  admin_username: "@tg_username"
+
 # LLM configuration for personalized recommendation messages
 # Remove or comment out to use static messages
 llm:
@@ -29,5 +33,5 @@ llm:
   base_url: "http://ollama:11434/v1"
   # Any string works for Ollama
   api_key: "ollama"
-  # Use the model that is pulled by docker-compose (e.g. qwen2.5:0.5b)
-  model: "qwen2.5:0.5b"
+  # Use the model that is pulled by docker-compose (e.g. gemma3:4b-it-qat)
+  model: "gemma3:4b-it-qat"
