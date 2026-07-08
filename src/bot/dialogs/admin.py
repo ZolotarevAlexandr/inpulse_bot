@@ -125,14 +125,14 @@ dialog = Dialog(
             Format("{users_str}")
         ),
         Column(
-            SwitchTo(Const("🔍 Find User by ID"), id="find_user", state=AdminSG.input_find),
+            SwitchTo(Const("🔍 Find User"), id="find_user", state=AdminSG.input_find),
             Start(Const("⬅️ Close Admin Panel"), id="close_admin", state=RootSG.main),
         ),
         state=AdminSG.menu,
         getter=admin_getter,
     ),
     Window(
-        Const("Please enter the Telegram ID or username (with or without @) of the user you want to find:"),
+        Const("Please enter the Telegram ID or username of the user you want to find:"),
         TextInput(id="find_input", on_success=on_find_user),
         SwitchTo(Const("⬅️ Back"), id="back", state=AdminSG.menu),
         state=AdminSG.input_find,
