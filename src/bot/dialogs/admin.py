@@ -70,10 +70,10 @@ logger = logging.getLogger(__name__)
 async def on_grant_duration(message: Message, widget, dialog_manager: DialogManager, text: str):
     try:
         days = int(text)
-        if days <= 0:
+        if days <= 0 or days > 36500:
             raise ValueError
     except ValueError:
-        await message.answer("Please enter a valid number of days (> 0).")
+        await message.answer("Please enter a valid number of days (1 to 36500).")
         return
         
     user_id = dialog_manager.dialog_data["target_user_id"]
