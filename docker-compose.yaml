@@ -7,6 +7,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      alembic-migrate:
+        condition: service_completed_successfully
     volumes:
       - "./settings.yaml:/app/settings.yaml:ro"
     environment:
