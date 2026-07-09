@@ -7,6 +7,8 @@ from src.config import settings
 from src.modules.calendar.models import FreeWindow
 from src.modules.tasks.models import Task
 
+LLM_REQUEST_TIMEOUT_SECONDS = 10.0
+
 
 def score_task(task: Task, window: FreeWindow, now: datetime.datetime) -> float:
     # 1. Hard filter: skip tasks that don't fit in the window
@@ -80,7 +82,8 @@ async def generate_explanation(task: Task, window: FreeWindow) -> str:
             
             response = await client.chat.completions.create(
                 model=settings.llm.model,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
+                timeout=LLM_REQUEST_TIMEOUT_SECONDS,
             )
             
             if response.usage:

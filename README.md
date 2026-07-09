@@ -59,7 +59,7 @@ _That's a small project created within one of elective courses_
 
 ### LLM Configuration
 
-LLM integration is **optional**. On startup, the bot checks connectivity to the configured LLM endpoint — if the check fails, it falls back to static recommendation messages automatically.
+LLM integration is **optional**. If a configured LLM request fails, the bot falls back to static recommendation messages automatically.
 
 To enable LLM-powered messages, add the `llm` section to your `settings.yaml`:
 

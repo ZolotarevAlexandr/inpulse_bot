@@ -60,21 +60,9 @@ setup_dialogs(dp)
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from src.bot.jobs import sync_all_url_calendars
 
-from openai import AsyncOpenAI
-
 async def main():
     if settings.llm:
-        logger.info("Checking LLM connection to %s...", settings.llm.base_url)
-        try:
-            client = AsyncOpenAI(
-                api_key=settings.llm.api_key.get_secret_value(),
-                base_url=settings.llm.base_url
-            )
-            await client.models.list(timeout=5.0)
-            logger.info("LLM connection successful. Using LLM for recommendations.")
-        except Exception as e:
-            logger.warning("LLM connection failed: %s. Falling back to static recommendations.", e)
-            settings.llm = None
+        logger.info("LLM configured. Recommendations will use it when requests succeed.")
     else:
         logger.info("No LLM configured. Using static recommendations.")
 
