@@ -38,6 +38,9 @@ services:
   alembic-migrate:
     image: "ghcr.io/zolotarevalexandr/inpulse_bot:${DOCKER_TAG_BOT:-latest}"
     restart: no
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - "./settings.yaml:/app/settings.yaml:ro" # Read-only settings file
     environment:
