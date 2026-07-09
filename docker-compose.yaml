@@ -33,6 +33,17 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: inpulse
 
+  alembic-migrate:
+    image: "ghcr.io/zolotarevalexandr/inpulse_bot:${DOCKER_TAG_BOT:-latest}"
+    restart: no
+    volumes:
+      - "./settings.yaml:/app/settings.yaml:ro" # Read-only settings file
+    environment:
+      TZ: "Europe/Moscow"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: alembic upgrade head
+
   redis:
     image: "redis:7.2.4-alpine"
     restart: unless-stopped
