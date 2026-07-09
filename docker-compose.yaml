@@ -1,6 +1,6 @@
 services:
   bot:
-    image: "ghcr.io/zolotarevalexandr/inpulse_bot:${DOCKER_TAG_BOT:-main}"
+    image: "ghcr.io/zolotarevalexandr/inpulse_bot:${DOCKER_TAG_BOT:-latest}"
     restart: unless-stopped
     depends_on:
       db:
