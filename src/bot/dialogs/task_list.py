@@ -2,7 +2,7 @@ import operator
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, DialogManager, Window
-from aiogram_dialog.widgets.kbd import Button, Cancel, Column, ScrollingGroup, Select, Start, SwitchTo
+from aiogram_dialog.widgets.kbd import Button, Cancel, Column, ScrollingGroup, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 from src.bot.states import TaskCreateSG, TaskListSG

@@ -1,16 +1,15 @@
-from aiogram.types import Message, CallbackQuery
-from aiogram_dialog import Dialog, Window, DialogManager, StartMode
-from aiogram_dialog.widgets.kbd import SwitchTo, Cancel, Column, ScrollingGroup, Select, Button
+
+from aiogram.types import CallbackQuery, Message
+from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.widgets.input import MessageInput, TextInput
+from aiogram_dialog.widgets.kbd import Button, Cancel, Column, ScrollingGroup, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
-from aiogram_dialog.widgets.input import TextInput, MessageInput
 
 from src.bot.states import CalendarSetupSG
 from src.db.database import db
-from src.modules.calendar.service import CalendarService
 from src.db.repositories.calendars import CalendarRepository
 from src.db.repositories.users import UserRepository
-
-import operator
+from src.modules.calendar.service import CalendarService
 
 
 async def get_internal_user_id(session, telegram_id: int) -> int | None:
@@ -105,7 +104,7 @@ async def on_sync_calendar(c: CallbackQuery, widget, dialog_manager: DialogManag
                 events_count = await service.sync_calendar(cal)
                 await session.commit()
                 await c.message.answer(f"✅ Sync complete! Inserted {events_count} events.")
-            except Exception as e:
+            except Exception:
                 await c.message.answer("❌ Sync failed. Make sure the file or URL is valid.")
                 
     await dialog_manager.switch_to(CalendarSetupSG.info)
@@ -144,7 +143,7 @@ async def on_url_entered(message: Message, widget, dialog_manager: DialogManager
             await service.add_url_calendar(user_id, "URL Calendar", text)
             await session.commit()
             await message.answer("✅ URL Calendar added successfully!")
-        except Exception as e:
+        except Exception:
             await message.answer("❌ Failed to parse calendar URL.")
 
     await dialog_manager.switch_to(CalendarSetupSG.info)
@@ -173,7 +172,7 @@ async def on_file_entered(message: Message, widget, dialog_manager: DialogManage
             await service.add_file_calendar(user_id, message.document.file_name, file_content)
             await session.commit()
             await message.answer("✅ File Calendar added successfully!")
-        except Exception as e:
+        except Exception:
             await message.answer("❌ Failed to parse calendar file. Check if it's a valid .ics format.")
 
     await dialog_manager.switch_to(CalendarSetupSG.info)

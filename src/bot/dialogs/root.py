@@ -2,7 +2,7 @@ from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Column, Start
 from aiogram_dialog.widgets.text import Const, Format
 
-from src.bot.states import CalendarSetupSG, RecommendSG, RootSG, TaskListSG, AccountSG
+from src.bot.states import AccountSG, CalendarSetupSG, RecommendSG, RootSG, TaskListSG
 
 
 async def on_startup(dialog_manager: DialogManager, **kwargs):

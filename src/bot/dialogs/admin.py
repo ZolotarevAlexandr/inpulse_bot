@@ -1,10 +1,10 @@
 import datetime
 
 from aiogram.types import Message
-from aiogram_dialog import Dialog, Window, DialogManager
-from aiogram_dialog.widgets.kbd import SwitchTo, Cancel, Column, Button, Start
-from aiogram_dialog.widgets.text import Const, Format, Multi
+from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.input import TextInput
+from aiogram_dialog.widgets.kbd import Button, Column, Start, SwitchTo
+from aiogram_dialog.widgets.text import Const, Format, Multi
 
 from src.bot.states import AdminSG, RootSG
 from src.db.database import db
@@ -65,6 +65,7 @@ async def user_detail_getter(dialog_manager: DialogManager, **kwargs):
 
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 async def on_grant_duration(message: Message, widget, dialog_manager: DialogManager, text: str):

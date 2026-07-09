@@ -1,7 +1,4 @@
 import logging
-import asyncio
-
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.database import db
 from src.db.repositories.calendars import CalendarRepository

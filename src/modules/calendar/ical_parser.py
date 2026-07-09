@@ -1,6 +1,5 @@
 import datetime
 import logging
-from typing import List
 
 import recurring_ical_events
 from icalendar import Calendar
@@ -10,7 +9,7 @@ from src.modules.calendar.models import CalendarEvent
 logger = logging.getLogger(__name__)
 
 
-def parse_ical_data(ical_data: bytes, start_date: datetime.date, end_date: datetime.date) -> List[CalendarEvent]:
+def parse_ical_data(ical_data: bytes, start_date: datetime.date, end_date: datetime.date) -> list[CalendarEvent]:
     """
     Parses raw iCal bytes, expanding recurring events between start_date and end_date.
     Returns a list of CalendarEvent domain models.
@@ -39,14 +38,14 @@ def parse_ical_data(ical_data: bytes, start_date: datetime.date, end_date: datet
             is_all_day = False
             if type(start) is datetime.date:
                 is_all_day = True
-                start = datetime.datetime.combine(start, datetime.time.min, tzinfo=datetime.timezone.utc)
+                start = datetime.datetime.combine(start, datetime.time.min, tzinfo=datetime.UTC)
                 if type(end) is datetime.date:
-                    end = datetime.datetime.combine(end, datetime.time.min, tzinfo=datetime.timezone.utc)
+                    end = datetime.datetime.combine(end, datetime.time.min, tzinfo=datetime.UTC)
             
             if hasattr(start, "astimezone"):
-                start = start.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+                start = start.astimezone(datetime.UTC).replace(tzinfo=None)
             if hasattr(end, "astimezone"):
-                end = end.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+                end = end.astimezone(datetime.UTC).replace(tzinfo=None)
 
             parsed_events.append(CalendarEvent(
                 uid=uid,

@@ -1,7 +1,6 @@
-import datetime
 
 from aiogram_dialog import Dialog, DialogManager, Window
-from aiogram_dialog.widgets.kbd import Cancel, SwitchTo, Column
+from aiogram_dialog.widgets.kbd import Cancel, Column, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 from src.bot.states import AccountSG
@@ -27,8 +26,8 @@ async def account_getter(dialog_manager: DialogManager, **kwargs):
                 premium_until = user["premium_until"].strftime("%d.%m.%Y")
                 
             if not is_premium:
-                from src.modules.tasks.service import TaskService
                 from src.db.repositories.recommendation_log import RecommendationLogRepository
+                from src.modules.tasks.service import TaskService
                 
                 task_service = TaskService(session)
                 pending = await task_service.list_pending_tasks(user["id"])

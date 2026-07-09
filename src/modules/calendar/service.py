@@ -1,6 +1,5 @@
 import datetime
 import logging
-from typing import List, Optional
 
 import aiohttp
 import pytz
@@ -49,7 +48,7 @@ class CalendarService:
         return total_events
 
     async def sync_calendar(self, calendar: dict) -> int:
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         start_date = now.date()
         end_date = start_date + datetime.timedelta(days=30)
 
@@ -84,7 +83,7 @@ class CalendarService:
         
         return len(events_dicts)
 
-    async def get_free_windows(self, user_id: int, target_date: datetime.date) -> List[FreeWindow]:
+    async def get_free_windows(self, user_id: int, target_date: datetime.date) -> list[FreeWindow]:
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             raise ValueError("User not found")
@@ -94,8 +93,8 @@ class CalendarService:
         start_time_local = datetime.datetime.combine(target_date, datetime.time(user.get("work_start_hour", 8), 0))
         end_time_local = datetime.datetime.combine(target_date, datetime.time(user.get("work_end_hour", 23), 0))
         
-        start_time_utc = tz.localize(start_time_local).astimezone(datetime.timezone.utc).replace(tzinfo=None)
-        end_time_utc = tz.localize(end_time_local).astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        start_time_utc = tz.localize(start_time_local).astimezone(datetime.UTC).replace(tzinfo=None)
+        end_time_utc = tz.localize(end_time_local).astimezone(datetime.UTC).replace(tzinfo=None)
         
         events = await self.event_repo.get_events_in_range_for_user(user_id, start_time_utc, end_time_utc)
         
@@ -141,8 +140,8 @@ class CalendarService:
 
         return windows
 
-    async def get_current_window(self, user_id: int) -> Optional[FreeWindow]:
-        now_utc = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+    async def get_current_window(self, user_id: int) -> FreeWindow | None:
+        now_utc = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             return None
@@ -158,8 +157,8 @@ class CalendarService:
             
         effective_start = max(local_now, start_time_local)
         
-        start_time_utc = tz.localize(start_time_local).astimezone(datetime.timezone.utc).replace(tzinfo=None)
-        end_time_utc = tz.localize(end_time_local).astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        start_time_utc = tz.localize(start_time_local).astimezone(datetime.UTC).replace(tzinfo=None)
+        end_time_utc = tz.localize(end_time_local).astimezone(datetime.UTC).replace(tzinfo=None)
         
         events = await self.event_repo.get_events_in_range_for_user(user_id, start_time_utc, end_time_utc)
         

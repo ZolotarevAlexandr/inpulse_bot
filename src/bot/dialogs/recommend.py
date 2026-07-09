@@ -1,15 +1,14 @@
+import logging
+
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Button, Cancel, Column, Start
 from aiogram_dialog.widgets.text import Const, Format
 
-from src.bot.states import RecommendSG, AccountSG
+from src.bot.states import AccountSG, RecommendSG
 from src.db.database import db
 from src.db.repositories.users import UserRepository
 from src.modules.recommendations.service import RecommendationService
-
-
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
-from typing import Any, Awaitable, Callable, Dict
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from aiogram import BaseMiddleware
 
@@ -9,9 +10,9 @@ from src.db.repositories.users import UserRepository
 class AuthMiddleware(BaseMiddleware):
     async def __call__(
         self,
-        handler: Callable[[Any, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[Any, dict[str, Any]], Awaitable[Any]],
         event: Any,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         user = data.get("event_from_user")
         
