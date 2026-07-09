@@ -1,6 +1,8 @@
 services:
   bot:
-    image: "ghcr.io/zolotarevalexandr/inpulse_bot:${DOCKER_TAG_BOT:-main}"
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       db:
@@ -41,6 +43,32 @@ services:
     volumes:
       - "redis:/data"
 
+  ollama:
+    image: ollama/ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - "ollama:/root/.ollama"
+
+  ollama-pull:
+    image: curlimages/curl:latest
+    depends_on:
+      - ollama
+    restart: "no"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - MODEL_NAME=qwen3.5:2b
+    command: >
+      sh -c "
+        echo 'Waiting for Ollama to start...'
+        while ! curl -s $$OLLAMA_URL >/dev/null; do sleep 2; done
+        echo \"Ollama is running. Pulling model $$MODEL_NAME...\"
+        curl -X POST $$OLLAMA_URL/api/pull -d \"{\\\"name\\\":\\\"$$MODEL_NAME\\\"}\"
+        echo '\nModel pulled successfully!'
+      "
+
 volumes:
   postgres:
   redis:
+  ollama:
