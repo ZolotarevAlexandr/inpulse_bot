@@ -25,6 +25,10 @@ subscription:
   payment_link: "https://example.com/pay"
   admin_username: "@tg_username"
 
+free_limits:
+  active_tasks: 5
+  recommendations_per_day: 3
+
 # LLM configuration for personalized recommendation messages
 # Remove or comment out to use static messages
 llm:

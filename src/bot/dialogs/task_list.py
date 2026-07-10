@@ -6,6 +6,7 @@ from aiogram_dialog.widgets.kbd import Button, Cancel, Column, ScrollingGroup, S
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 from src.bot.states import TaskCreateSG, TaskListSG
+from src.config import settings
 from src.db.database import db
 from src.db.repositories.users import UserRepository
 from src.modules.tasks.service import TaskService
@@ -97,9 +98,9 @@ async def on_add_task_click(call: CallbackQuery, button: Button, dialog_manager:
             if user:
                 task_service = TaskService(session)
                 pending = await task_service.list_pending_tasks(user["id"])
-                if len(pending) >= 15:
+                if len(pending) >= settings.free_limits.active_tasks:
                     logger.warning(f"User {user_id} (@{username}) hit Free tier limits (active tasks)")
-                    await call.answer("📋 Free accounts are limited to 15 active tasks! Upgrade to Premium.", show_alert=True)
+                    await call.answer(f"📋 Free accounts are limited to {settings.free_limits.active_tasks} active tasks! Upgrade to InPulse Pro.", show_alert=True)
                     return
     await dialog_manager.start(TaskCreateSG.input_title)
 

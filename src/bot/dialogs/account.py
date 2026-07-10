@@ -41,6 +41,8 @@ async def account_getter(dialog_manager: DialogManager, **kwargs):
         "premium_until": premium_until,
         "tasks_used": tasks_used,
         "recs_used": recs_used,
+        "free_tasks_limit": settings.free_limits.active_tasks,
+        "free_recs_limit": settings.free_limits.recommendations_per_day,
     }
 
 
@@ -55,22 +57,22 @@ dialog = Dialog(
     Window(
         Multi(
             Const("👤 <b>Account</b>\n"),
-            Format("<b>Role:</b> Premium ⭐\n", when="is_premium"),
+            Format("<b>Role:</b> InPulse Pro ⭐\n", when="is_premium"),
             Format("<b>Role:</b> Free\n", when=lambda data, w, m: not data.get("is_premium", False)),
-            Format("<b>Premium until:</b> {premium_until}\n", when="is_premium"),
+            Format("<b>InPulse Pro until:</b> {premium_until}\n", when="is_premium"),
             Const(
                 "You have unlimited recommendations and active tasks! 🚀\n",
                 when="is_premium"
             ),
             Format(
                 "<b>Limits:</b>\n"
-                "• Active Tasks: {tasks_used} / 15\n"
-                "• Recommendations Today: {recs_used} / 3\n",
+                "• Active Tasks: {tasks_used} / {free_tasks_limit}\n"
+                "• Recommendations Today: {recs_used} / {free_recs_limit}\n",
                 when=lambda data, w, m: not data.get("is_premium", False)
             ),
         ),
         Column(
-            SwitchTo(Const("💎 Buy Premium"), id="buy", state=AccountSG.buy, when=lambda data, w, m: not data.get("is_premium", False)),
+            SwitchTo(Const("💎 Buy InPulse Pro"), id="buy", state=AccountSG.buy, when=lambda data, w, m: not data.get("is_premium", False)),
             Cancel(Const("⬅️ Back")),
         ),
         state=AccountSG.info,
@@ -78,7 +80,7 @@ dialog = Dialog(
     ),
     Window(
         Format(
-            "💳 <b>To purchase a Premium subscription ({price_rub_month} RUB/month):</b>\n\n"
+            "💳 <b>To purchase an InPulse Pro subscription ({price_rub_month} RUB/month):</b>\n\n"
         ),
         Format("1. Transfer the payment to {payment_link}\n"),
         Format("2. Send the receipt screenshot to {admin_username} in a private message\n"),

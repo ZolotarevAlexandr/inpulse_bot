@@ -51,7 +51,7 @@ async def user_detail_getter(dialog_manager: DialogManager, **kwargs):
         user = await repo.get_by_id(user_id)
         is_premium = await repo.is_premium(user_id)
         
-    role_str = "Premium ⭐" if is_premium else "Free"
+    role_str = "InPulse Pro ⭐" if is_premium else "Free"
     premium_until = user.get("premium_until")
     premium_until_str = premium_until.strftime("%d.%m.%Y") if premium_until else "N/A"
     
@@ -95,17 +95,17 @@ async def on_grant_duration(message: Message, widget, dialog_manager: DialogMana
         await repo.set_premium(user_id, until)
         await session.commit()
         
-        logger.info(f"Admin {message.from_user.id} granted/extended Premium for User {user_id} (@{user['username']}) until {until}")
-        logger.info(f"[ANALYTICS] Admin granted Premium for User {user_id} (@{user['username']})")
+        logger.info(f"Admin {message.from_user.id} granted/extended InPulse Pro for User {user_id} (@{user['username']}) until {until}")
+        logger.info(f"[ANALYTICS] Admin granted InPulse Pro for User {user_id} (@{user['username']})")
         
-    await message.answer(f"✅ User Premium {action_text} until {until.strftime('%d.%m.%Y')}.")
+    await message.answer(f"✅ User InPulse Pro {action_text} until {until.strftime('%d.%m.%Y')}.")
     
     from aiogram import Bot
     bot: Bot = dialog_manager.middleware_data["bot"]
     try:
         await bot.send_message(
             telegram_id, 
-            f"🎉 Your Premium subscription has been {action_text} until {until.strftime('%d.%m.%Y')}! Enjoy unlimited recommendations."
+            f"🎉 Your InPulse Pro subscription has been {action_text} until {until.strftime('%d.%m.%Y')}! Enjoy unlimited recommendations."
         )
     except Exception:
         await message.answer("⚠️ Could not send notification to user (they might have blocked the bot).")
@@ -121,10 +121,10 @@ async def revoke_premium(call: Message, button: Button, dialog_manager: DialogMa
         await repo.remove_premium(user_id)
         await session.commit()
         
-        logger.info(f"Admin {call.from_user.id} revoked Premium for User {user_id} (@{user['username']})")
-        logger.info(f"[ANALYTICS] Admin revoked Premium for User {user_id} (@{user['username']})")
+        logger.info(f"Admin {call.from_user.id} revoked InPulse Pro for User {user_id} (@{user['username']})")
+        logger.info(f"[ANALYTICS] Admin revoked InPulse Pro for User {user_id} (@{user['username']})")
         
-    await call.answer("Premium revoked.", show_alert=True)
+    await call.answer("InPulse Pro revoked.", show_alert=True)
     await dialog_manager.switch_to(AdminSG.user_detail)
 
 
@@ -154,19 +154,19 @@ dialog = Dialog(
             Format("<b>ID:</b> <code>{tg_id}</code>"),
             Format("<b>Username:</b> @{username}"),
             Format("<b>Status:</b> {role_str}"),
-            Format("<b>Premium until:</b> {premium_until}\n"),
+            Format("<b>InPulse Pro until:</b> {premium_until}\n"),
         ),
         Column(
-            SwitchTo(Const("⭐ Grant Premium"), id="grant_prem", state=AdminSG.select_duration, when=lambda data, w, m: not data.get("is_premium")),
-            SwitchTo(Const("⭐ Extend Premium"), id="extend_prem", state=AdminSG.select_duration, when="is_premium"),
-            Button(Const("❌ Revoke Premium"), id="revoke_prem", on_click=revoke_premium, when="is_premium"),
+            SwitchTo(Const("⭐ Grant InPulse Pro"), id="grant_prem", state=AdminSG.select_duration, when=lambda data, w, m: not data.get("is_premium")),
+            SwitchTo(Const("⭐ Extend InPulse Pro"), id="extend_prem", state=AdminSG.select_duration, when="is_premium"),
+            Button(Const("❌ Revoke InPulse Pro"), id="revoke_prem", on_click=revoke_premium, when="is_premium"),
             SwitchTo(Const("⬅️ Back to Menu"), id="back", state=AdminSG.menu),
         ),
         state=AdminSG.user_detail,
         getter=user_detail_getter,
     ),
     Window(
-        Const("Enter the number of days to grant Premium for (e.g. 30):"),
+        Const("Enter the number of days to grant InPulse Pro for (e.g. 30):"),
         TextInput(id="duration_input", on_success=on_grant_duration),
         SwitchTo(Const("⬅️ Back"), id="back", state=AdminSG.user_detail),
         state=AdminSG.select_duration,

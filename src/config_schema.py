@@ -26,11 +26,20 @@ class LLM(SettingsEntityModel):
     "Model to use for generation"
 
 
+class FreeLimits(SettingsEntityModel):
+    """Limits for free tier users"""
+    
+    active_tasks: int = 15
+    "Maximum number of active tasks for free users"
+    recommendations_per_day: int = 3
+    "Maximum number of recommendations per day for free users"
+
+
 class Subscription(SettingsEntityModel):
-    """Premium subscription settings"""
+    """InPulse Pro subscription settings"""
     
     price_rub_month: int = 100
-    "Price of premium subscription in RUB per month"
+    "Price of InPulse Pro subscription in RUB per month"
     payment_link: str = "https://example.com/pay"
     "Link or details for payment transfer"
     admin_username: str = "@admin"
@@ -82,7 +91,10 @@ class Settings(SettingsEntityModel):
     "Telegram Bot configuration"
     
     subscription: Subscription = Field(default_factory=Subscription)
-    "Premium subscription configuration"
+    "InPulse Pro subscription configuration"
+
+    free_limits: FreeLimits = Field(default_factory=FreeLimits)
+    "Limits for free tier users"
 
     llm: LLM | None = None
     "LLM integration settings for recommendations"

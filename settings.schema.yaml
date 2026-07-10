@@ -24,6 +24,22 @@ $defs:
     - production
     title: Environment
     type: string
+  FreeLimits:
+    additionalProperties: false
+    description: Limits for free tier users
+    properties:
+      active_tasks:
+        default: 15
+        description: Maximum number of active tasks for free users
+        title: Active Tasks
+        type: integer
+      recommendations_per_day:
+        default: 3
+        description: Maximum number of recommendations per day for free users
+        title: Recommendations Per Day
+        type: integer
+    title: FreeLimits
+    type: object
   LLM:
     additionalProperties: false
     description: LLM settings for text generation
@@ -170,6 +186,8 @@ properties:
   subscription:
     $ref: '#/$defs/Subscription'
     description: Premium subscription configuration
+  free_limits:
+    $ref: '#/$defs/FreeLimits'
   llm:
     anyOf:
     - $ref: '#/$defs/LLM'

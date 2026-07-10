@@ -6,6 +6,7 @@ from aiogram_dialog.widgets.kbd import Button, Cancel, Column, Start
 from aiogram_dialog.widgets.text import Const, Format
 
 from src.bot.states import AccountSG, RecommendSG
+from src.config import settings
 from src.db.database import db
 from src.db.repositories.users import UserRepository
 from src.modules.recommendations.service import RecommendationService
@@ -27,12 +28,12 @@ async def recommend_getter(dialog_manager: DialogManager, **kwargs):
             from src.db.repositories.recommendation_log import RecommendationLogRepository
             log_repo = RecommendationLogRepository(session)
             count = await log_repo.get_recommendations_today_count(user["id"])
-            if count >= 3:
+            if count >= settings.free_limits.recommendations_per_day:
                 logger.warning(f"User {user_id} (@{username}) hit Free tier limits (recommendations)")
                 return {
                     "has_rec": False,
                     "is_premium": False,
-                    "text": "⭐ You've used your 3 free recommendations for today. Upgrade to Premium for unlimited access!",
+                    "text": f"⭐ You've used your {settings.free_limits.recommendations_per_day} free recommendations for today. Upgrade to InPulse Pro for unlimited access!",
                 }
             
         rec_service = RecommendationService(session)
@@ -72,7 +73,7 @@ dialog = Dialog(
         Format("{text}"),
         Column(
             Button(Const("✅ Let's do it!"), id="accept", on_click=accept_task, when="has_rec"),
-            Start(Const("💎 Buy Premium"), id="buy_premium", state=AccountSG.buy, when=lambda data, w, m: not data.get("is_premium", False)),
+            Start(Const("💎 Buy InPulse Pro"), id="buy_premium", state=AccountSG.buy, when=lambda data, w, m: not data.get("is_premium", False)),
             Cancel(Const("⬅️ Back")),
         ),
         state=RecommendSG.show,
