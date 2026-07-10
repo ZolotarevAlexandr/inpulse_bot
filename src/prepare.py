@@ -35,12 +35,6 @@ def ensure_settings_file():
     print(f"✅ Copied `{SETTINGS_TEMPLATE}` to `{SETTINGS_FILE}`")
 
 
-def ensure_schema_file():
-    from src.config_schema import Settings
-    Settings.save_schema(SETTINGS_SCHEMA)
-    print(f"✅ Schema saved to `{SETTINGS_SCHEMA}`")
-
-
 def check_and_prompt_bot_token():
     settings = get_settings()
     bot_settings = settings.get("telegram_bot", {})
@@ -71,7 +65,6 @@ def check_and_prompt_bot_token():
 
 def prepare():
     ensure_settings_file()
-    ensure_schema_file()
     check_and_prompt_bot_token()
 
 
