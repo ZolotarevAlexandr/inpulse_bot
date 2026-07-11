@@ -63,3 +63,13 @@ async def admin_cmd(message: Message, dialog_manager: DialogManager):
         await dialog_manager.start(AdminSG.menu, mode=StartMode.RESET_STACK)
     else:
         await message.answer("⛔ Access denied.")
+
+
+@router.message(Command("inform"))
+async def inform_cmd(message: Message, dialog_manager: DialogManager):
+    user = message.from_user
+    if user and user.id in settings.telegram_bot.admins:
+        from src.bot.states import AdminSG
+        await dialog_manager.start(AdminSG.inform_upload, mode=StartMode.RESET_STACK)
+    else:
+        await message.answer("⛔ Access denied.")

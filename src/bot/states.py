@@ -35,6 +35,7 @@ class AdminSG(StatesGroup):
     user_detail = State()
     input_find = State()
     select_duration = State()
+    inform_upload = State()
 
 
 class AccountSG(StatesGroup):

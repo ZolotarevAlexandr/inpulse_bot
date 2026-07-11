@@ -1,14 +1,24 @@
 import datetime
+import json
 
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, Window
-from aiogram_dialog.widgets.input import TextInput
+from aiogram_dialog.widgets.input import MessageInput, TextInput
 from aiogram_dialog.widgets.kbd import Button, Column, Start, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 from src.bot.states import AdminSG, RootSG
 from src.db.database import db
 from src.db.repositories.users import UserRepository
+
+BOT_LAUNCH_MESSAGE = """
+Hi! That's InPulse again and we're glad to announce that bot is up and running now!
+
+inPulse turns every free window between classes into a completed task.
+You're free for 20-60 minutes and you don't know what to do? The bot will suggest one suitable task, taking into account the schedule, deadlines and priorities.
+
+Just type /start, connect your calendar and add some tasks
+"""
 
 
 async def admin_getter(dialog_manager: DialogManager, **kwargs):
@@ -128,6 +138,36 @@ async def revoke_premium(call: Message, button: Button, dialog_manager: DialogMa
     await dialog_manager.switch_to(AdminSG.user_detail)
 
 
+async def on_inform_file_entered(message: Message, widget, dialog_manager: DialogManager):
+    if not message.document or not message.document.file_name.endswith('.json'):
+        await message.answer("Please send a valid .json file.")
+        return
+
+    bot = message.bot
+    file = await bot.get_file(message.document.file_id)
+    file_bytes = await bot.download_file(file.file_path)
+    
+    try:
+        data = json.loads(file_bytes.read().decode('utf-8'))
+        users = data.get("users", [])
+        if not isinstance(users, list):
+            raise ValueError
+    except Exception:
+        await message.answer('Invalid JSON format. Expected format: {"users": [123, 456]}')
+        return
+
+    success_count = 0
+    for uid in users:
+        try:
+            await bot.send_message(uid, BOT_LAUNCH_MESSAGE)
+            success_count += 1
+        except Exception as e:
+            logger.error(f"Failed to send to {uid}: {e}")
+
+    await message.answer(f"✅ Notification sent to {success_count}/{len(users)} users.")
+    await dialog_manager.switch_to(AdminSG.menu)
+
+
 dialog = Dialog(
     Window(
         Multi(
@@ -170,5 +210,11 @@ dialog = Dialog(
         TextInput(id="duration_input", on_success=on_grant_duration),
         SwitchTo(Const("⬅️ Back"), id="back", state=AdminSG.user_detail),
         state=AdminSG.select_duration,
+    ),
+    Window(
+        Const("📁 Please upload a JSON file with user IDs to inform them that the bot is up:"),
+        MessageInput(on_inform_file_entered),
+        SwitchTo(Const("⬅️ Cancel"), id="cancel", state=AdminSG.menu),
+        state=AdminSG.inform_upload,
     )
 )
