@@ -1,7 +1,7 @@
 import datetime
 from dataclasses import dataclass
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.schema import (
@@ -41,8 +41,13 @@ class Statistics:
     # Recommendations
     total_recommendations: int
     recommendations_today: int
+    recommendations_7d: int
+    recommendations_30d: int
+    avg_recommendations_per_user: float
     acceptance_rate: float | None
+    rejection_rate: float | None
     completion_rate: float | None
+    avg_response_minutes: float | None
 
 
 class StatisticsRepository:
@@ -124,6 +129,26 @@ class StatisticsRepository:
                 recommendation_log.c.shown_at >= today_start
             )
         )
+        recommendations_7d = await self._scalar(
+            select(func.count(recommendation_log.c.id)).where(
+                recommendation_log.c.shown_at >= week_ago
+            )
+        )
+        recommendations_30d = await self._scalar(
+            select(func.count(recommendation_log.c.id)).where(
+                recommendation_log.c.shown_at >= month_ago
+            )
+        )
+
+        # Avg recommendations per user (only users who received at least one)
+        users_with_recs = await self._scalar(
+            select(func.count(func.distinct(recommendation_log.c.user_id)))
+        )
+        avg_recommendations_per_user = (
+            round(total_recommendations / users_with_recs, 1)
+            if users_with_recs
+            else 0.0
+        )
 
         # Acceptance rate: accepted / responded (where accepted IS NOT NULL)
         responded_count = await self._scalar(
@@ -142,6 +167,14 @@ class StatisticsRepository:
             else None
         )
 
+        # Rejection rate: rejected / responded
+        rejected_count = responded_count - accepted_count
+        rejection_rate = (
+            round(rejected_count / responded_count * 100, 1)
+            if responded_count
+            else None
+        )
+
         # Completion rate: completed / accepted
         completed_recs = await self._scalar(
             select(func.count(recommendation_log.c.id)).where(
@@ -151,6 +184,26 @@ class StatisticsRepository:
         completion_rate = (
             round(completed_recs / accepted_count * 100, 1)
             if accepted_count
+            else None
+        )
+
+        # Avg response time: difference between window_start and shown_at
+        # (approximation — window_start is when the user's free slot begins)
+        avg_response_result = await self.session.execute(
+            select(
+                func.avg(
+                    func.extract(
+                        "epoch",
+                        recommendation_log.c.window_start
+                        - recommendation_log.c.shown_at,
+                    )
+                )
+            ).where(recommendation_log.c.accepted.is_not(None))
+        )
+        avg_response_seconds = avg_response_result.scalar_one()
+        avg_response_minutes = (
+            round(abs(avg_response_seconds) / 60, 1)
+            if avg_response_seconds is not None
             else None
         )
 
@@ -174,8 +227,13 @@ class StatisticsRepository:
             users_with_calendars=users_with_calendars,
             total_recommendations=total_recommendations,
             recommendations_today=recommendations_today,
+            recommendations_7d=recommendations_7d,
+            recommendations_30d=recommendations_30d,
+            avg_recommendations_per_user=avg_recommendations_per_user,
             acceptance_rate=acceptance_rate,
+            rejection_rate=rejection_rate,
             completion_rate=completion_rate,
+            avg_response_minutes=avg_response_minutes,
         )
 
     async def _scalar(self, stmt) -> int:
